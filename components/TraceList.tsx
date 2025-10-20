@@ -14,8 +14,6 @@ export function TraceList({
   selectedStepId,
   onSelectStep,
 }: TraceListProps) {
-  const sortedSteps = [...steps].sort((a, b) => a.id.localeCompare(b.id));
-
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString("en-US", {
       hour12: false,
@@ -60,7 +58,7 @@ export function TraceList({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {sortedSteps.map((step) => (
+            {steps.map((step) => (
               <tr
                 key={step.id}
                 onClick={() => onSelectStep(step.id)}

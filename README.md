@@ -38,19 +38,13 @@ types/
 
 ## Your Tasks
 
-### Tier 1 — Debug (Two Small Fixes)
+### Tier 1 — Debug (One Bug)
 
-There are two bugs preventing the app from working correctly:
+There is a visual bug in the application:
 
-1. **Ordering Bug**: Steps are displayed in the wrong order. They should be sorted chronologically by `start_time`, but they're currently sorted by `id` (which is random).
-   - **Location**: `components/TraceList.tsx`
-   - **Fix**: Update the sorting logic
-
-2. **Zod Validation Error**: The app crashes with a Zod validation error because the schema doesn't match the API response:
-   - The API sometimes sends `tool` as a string (e.g., `"code"`) and sometimes as an object (e.g., `{ name: "browser" }`)
-   - The API sends `start_time` and `end_time` as ISO date strings, not Date objects
-   - **Locations**: `types/trace.ts` and/or `hooks/useTraceQuery.ts`
-   - **Fix**: Update the schema to handle both formats, or transform the data to match the schema
+**Ordering Bug**: Steps are displayed in the wrong order. They should be sorted chronologically by `start_time`, but they're currently sorted by `id` (which is random).
+- **Location**: `components/TraceList.tsx`
+- **Fix**: Update the sorting logic to sort by timestamp instead
 
 ### Tier 2 — Small Feature (Filters)
 
@@ -58,36 +52,53 @@ Implement the filtering functionality:
 
 1. **"Errors only" toggle**: When enabled, show only steps that have an `error` field
 2. **Search input**: Filter steps by matching the search query against:
-   - `tool` (string or object name)
+   - `tool.name` field (tool is an object with a `name` property)
    - `input` field
-   - `error.message` field
-3. **URL persistence**: Both filters should be synced with URL query params:
+   - `error.message` field (if error exists)
+3. **Debouncing**: The search input should be debounced (300-500ms) to avoid excessive URL updates while typing
+4. **URL persistence**: Both filters should be synced with URL query params:
    - `?errors=true` for the errors-only toggle
    - `?q=search+term` for the search query
    - The URL utilities in `lib/url.ts` should help with this
-4. **Count display**: The error count badge is already wired up
+5. **Count display**: The error count badge is already wired up
 
 **Files to modify**:
-- `app/run/[runId]/page.tsx` (implement the filtering logic in the `filteredSteps` useMemo)
+- `app/run/[runId]/page.tsx` (implement the filtering logic in the `filteredSteps` useMemo and add debouncing)
 
 ### Tier 3 — Harder Feature (Step Inspector Panel)
 
-Implement a slide-out inspector panel that shows step details:
+**Build a slide-out inspector panel from scratch** that shows step details:
 
-1. **Panel behavior**:
-   - Opens when a step is selected from the list
+1. **Create the component**:
+   - Create a new file `components/StepInspectorPanel.tsx`
+   - Display step details: name, tool, timestamps, input, output, and errors (if any)
+   - Include a close button
+
+2. **Panel behavior**:
+   - Opens when a step is selected from the list (row click already sets `?stepId=step_xxx`)
    - Closes when the X button is clicked
    - Should slide in/out smoothly from the right side
-2. **URL deep-linking**:
-   - When a step is selected, add `?stepId=step_xxx` to the URL
-   - When the panel is closed, remove `stepId` from the URL
-   - Opening a URL with `?stepId=step_xxx` should automatically open the panel
-3. **Preserve scroll position**: The list should maintain its scroll position when the panel opens/closes
-4. **Visual polish**: Add smooth transitions/animations
+   - Add a backdrop/overlay
 
-**Files to modify**:
-- `components/StepInspectorPanel.tsx` (add slide-out animation)
-- `app/run/[runId]/page.tsx` (URL integration is mostly done, but you may need to adjust)
+3. **URL deep-linking**:
+   - Read `selectedStepId` from URL params (already done in main page)
+   - Panel opens when `stepId` is present in the URL
+   - Closing the panel removes `stepId` from the URL
+   - Direct navigation to URLs like `/run/run_123?stepId=step_xxx` should work
+
+4. **Integration**:
+   - Import and use the component in `app/run/[runId]/page.tsx`
+   - Find the selected step from `data.steps` by matching the `selectedStepId`
+   - Pass the step data and handlers to your panel component
+
+5. **Visual polish**:
+   - Smooth transitions/animations
+   - Preserve list scroll position when opening/closing
+   - Close on backdrop click
+
+**Files to create/modify**:
+- `components/StepInspectorPanel.tsx` (create this new component)
+- `app/run/[runId]/page.tsx` (integrate the panel)
 
 ### Tier 4 — Planning (Discussion)
 
@@ -112,9 +123,10 @@ Design a Postgres schema to support **per-step annotations** (comments and tags)
 
 ## Tips
 
-- Check the browser console for errors (especially Zod validation errors)
-- The mock API returns ~27 steps with mixed formats
+- The mock API returns ~27 steps
 - About 20% of steps have errors
 - All components use Tailwind CSS for styling
+- The app should load successfully on first run, but steps will be in the wrong order
+- Use browser dev tools to inspect the data and understand the structure
 
 Good luck!

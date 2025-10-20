@@ -4,7 +4,6 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useTraceQuery } from "@/hooks/useTraceQuery";
 import { TraceList } from "@/components/TraceList";
 import { Filters } from "@/components/Filters";
-import { StepInspectorPanel } from "@/components/StepInspectorPanel";
 import { getBooleanParam, getStringParam, buildSearchString } from "@/lib/url";
 import { useMemo } from "react";
 
@@ -41,12 +40,6 @@ export default function TraceViewerPage() {
     return data.steps.filter((step) => step.error).length;
   }, [data?.steps]);
 
-  // Find selected step for inspector panel
-  const selectedStep = useMemo(() => {
-    if (!selectedStepId || !data?.steps) return null;
-    return data.steps.find((step) => step.id === selectedStepId) || null;
-  }, [selectedStepId, data?.steps]);
-
   // Update URL with new query params
   const updateUrl = (updates: Record<string, string | boolean | null>) => {
     const newSearch = buildSearchString(searchParams, updates);
@@ -64,10 +57,6 @@ export default function TraceViewerPage() {
 
   const handleSelectStep = (stepId: string) => {
     updateUrl({ stepId });
-  };
-
-  const handleCloseInspector = () => {
-    updateUrl({ stepId: null });
   };
 
   if (isLoading) {
@@ -114,12 +103,6 @@ export default function TraceViewerPage() {
           />
         </div>
       </div>
-
-      <StepInspectorPanel
-        step={selectedStep}
-        isOpen={!!selectedStepId}
-        onClose={handleCloseInspector}
-      />
     </div>
   );
 }

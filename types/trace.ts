@@ -16,8 +16,8 @@ const ErrorSchema = z.object({
 export const StepSchema = z.object({
   id: z.string(),
   step: z.string(),
-  start_time: z.date(),
-  end_time: z.date(),
+  start_time: z.string().transform((str) => new Date(str)),
+  end_time: z.string().transform((str) => new Date(str)),
   tool: ToolSchema,
   input: z.string().optional(),
   output: z.string().optional(),
