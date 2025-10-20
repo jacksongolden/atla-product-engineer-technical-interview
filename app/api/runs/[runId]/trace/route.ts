@@ -1,0 +1,277 @@
+import { NextResponse } from "next/server";
+
+/**
+ * Mock API endpoint that returns trace data
+ *
+ * INTENTIONAL ISSUES (for candidates to discover):
+ * 1. Steps have random UUIDs (not sequential) and are NOT sorted by start_time
+ * 2. `tool` field is sometimes a string, sometimes an object
+ * 3. Timestamps are ISO strings (not Date objects)
+ */
+
+export async function GET() {
+  // Generate realistic trace data with ~20-30 steps
+  const baseTime = new Date("2024-01-15T10:00:00Z");
+
+  const steps = [
+    {
+      id: "step_8f7e2c1d",
+      step: "Initialize agent",
+      start_time: new Date(baseTime.getTime()).toISOString(),
+      end_time: new Date(baseTime.getTime() + 1200).toISOString(),
+      tool: "code",  // STRING format (intentional)
+      input: "Initialize the AI agent with configuration",
+      output: "Agent initialized successfully",
+    },
+    {
+      id: "step_3a9b4f2e",
+      step: "Parse user input",
+      start_time: new Date(baseTime.getTime() + 1200).toISOString(),
+      end_time: new Date(baseTime.getTime() + 2100).toISOString(),
+      tool: { name: "code" },  // OBJECT format
+      input: "Extract intent and parameters from user query",
+      output: "Intent: search_database, params: {query: 'users'}",
+    },
+    {
+      id: "step_7d4c8e9a",
+      step: "Validate parameters",
+      start_time: new Date(baseTime.getTime() + 2100).toISOString(),
+      end_time: new Date(baseTime.getTime() + 2800).toISOString(),
+      tool: "code",
+      input: "Validate search parameters",
+      output: "Parameters valid",
+    },
+    {
+      id: "step_1f5a9d3b",
+      step: "Connect to database",
+      start_time: new Date(baseTime.getTime() + 2800).toISOString(),
+      end_time: new Date(baseTime.getTime() + 4500).toISOString(),
+      tool: { name: "database" },
+      input: "postgresql://localhost:5432/prod",
+      output: "Connection established",
+    },
+    {
+      id: "step_9e2b7c4f",
+      step: "Execute query",
+      start_time: new Date(baseTime.getTime() + 4500).toISOString(),
+      end_time: new Date(baseTime.getTime() + 6200).toISOString(),
+      tool: { name: "database" },
+      input: "SELECT * FROM users WHERE active = true LIMIT 100",
+      output: "Retrieved 87 rows",
+    },
+    {
+      id: "step_4c8d2e1a",
+      step: "Format results",
+      start_time: new Date(baseTime.getTime() + 6200).toISOString(),
+      end_time: new Date(baseTime.getTime() + 7100).toISOString(),
+      tool: "code",
+      input: "Transform database rows to JSON",
+      output: "Formatted 87 records",
+    },
+    {
+      id: "step_6b3e9f7d",
+      step: "Check cache",
+      start_time: new Date(baseTime.getTime() + 7100).toISOString(),
+      end_time: new Date(baseTime.getTime() + 7800).toISOString(),
+      tool: { name: "cache" },
+      input: "key: user_profiles_batch_1",
+      output: "Cache miss",
+    },
+    {
+      id: "step_2d7f4a8c",
+      step: "Fetch user profiles",
+      start_time: new Date(baseTime.getTime() + 7800).toISOString(),
+      end_time: new Date(baseTime.getTime() + 9500).toISOString(),
+      tool: "browser",
+      input: "GET https://api.example.com/profiles?ids=1,2,3",
+      output: "Retrieved 3 profiles",
+    },
+    {
+      id: "step_5e9c1b6d",
+      step: "Parse API response",
+      start_time: new Date(baseTime.getTime() + 9500).toISOString(),
+      end_time: new Date(baseTime.getTime() + 10200).toISOString(),
+      tool: "code",
+      input: "Parse JSON response from API",
+      output: "3 profiles parsed successfully",
+    },
+    {
+      id: "step_8a4f2c9e",
+      step: "Validate profile data",
+      start_time: new Date(baseTime.getTime() + 10200).toISOString(),
+      end_time: new Date(baseTime.getTime() + 11100).toISOString(),
+      tool: { name: "code" },
+      input: "Validate profile schema",
+      output: "All profiles valid",
+      error: {
+        message: "Profile 2 missing required field: email",
+        type: "ValidationError",
+      },
+    },
+    {
+      id: "step_3c7e9d1f",
+      step: "Retry profile fetch",
+      start_time: new Date(baseTime.getTime() + 11100).toISOString(),
+      end_time: new Date(baseTime.getTime() + 12800).toISOString(),
+      tool: "browser",
+      input: "GET https://api.example.com/profiles/2",
+      output: "Profile 2 retrieved with complete data",
+    },
+    {
+      id: "step_7f2a4c8b",
+      step: "Merge profile data",
+      start_time: new Date(baseTime.getTime() + 12800).toISOString(),
+      end_time: new Date(baseTime.getTime() + 13500).toISOString(),
+      tool: "code",
+      input: "Merge user records with profile data",
+      output: "87 users merged with profiles",
+    },
+    {
+      id: "step_1d8e9c3a",
+      step: "Search external API",
+      start_time: new Date(baseTime.getTime() + 13500).toISOString(),
+      end_time: new Date(baseTime.getTime() + 15200).toISOString(),
+      tool: { name: "search" },
+      input: "Query: active users metadata",
+      output: "Found 245 results",
+    },
+    {
+      id: "step_9c4f7e2d",
+      step: "Filter search results",
+      start_time: new Date(baseTime.getTime() + 15200).toISOString(),
+      end_time: new Date(baseTime.getTime() + 16100).toISOString(),
+      tool: "code",
+      input: "Filter results by relevance score > 0.8",
+      output: "34 high-quality results",
+    },
+    {
+      id: "step_4e7c2a9b",
+      step: "Enrich user data",
+      start_time: new Date(baseTime.getTime() + 16100).toISOString(),
+      end_time: new Date(baseTime.getTime() + 17500).toISOString(),
+      tool: { name: "code" },
+      input: "Add metadata to user records",
+      output: "Enriched 87 user records",
+    },
+    {
+      id: "step_6d9f3c8a",
+      step: "Calculate analytics",
+      start_time: new Date(baseTime.getTime() + 17500).toISOString(),
+      end_time: new Date(baseTime.getTime() + 19200).toISOString(),
+      tool: "code",
+      input: "Compute user engagement metrics",
+      output: "Metrics calculated for 87 users",
+    },
+    {
+      id: "step_2c8e4f1d",
+      step: "Store in cache",
+      start_time: new Date(baseTime.getTime() + 19200).toISOString(),
+      end_time: new Date(baseTime.getTime() + 20100).toISOString(),
+      tool: { name: "cache" },
+      input: "key: user_analytics_20240115, ttl: 3600",
+      output: "Cached successfully",
+    },
+    {
+      id: "step_7a3c9e2b",
+      step: "Generate report",
+      start_time: new Date(baseTime.getTime() + 20100).toISOString(),
+      end_time: new Date(baseTime.getTime() + 22500).toISOString(),
+      tool: "code",
+      input: "Create summary report",
+      output: "Report generated: 87 users, avg engagement: 0.76",
+    },
+    {
+      id: "step_5f8d1c4e",
+      step: "Send notification",
+      start_time: new Date(baseTime.getTime() + 22500).toISOString(),
+      end_time: new Date(baseTime.getTime() + 23200).toISOString(),
+      tool: { name: "browser" },
+      input: "POST https://api.example.com/notify",
+      output: "Notification sent",
+      error: {
+        message: "Notification service temporarily unavailable",
+        type: "ServiceError",
+      },
+    },
+    {
+      id: "step_8c2f9d7a",
+      step: "Retry notification",
+      start_time: new Date(baseTime.getTime() + 23200).toISOString(),
+      end_time: new Date(baseTime.getTime() + 24900).toISOString(),
+      tool: { name: "browser" },
+      input: "POST https://api.example.com/notify (retry 1)",
+      output: "Notification sent successfully",
+    },
+    {
+      id: "step_3e7a4c9f",
+      step: "Log completion",
+      start_time: new Date(baseTime.getTime() + 24900).toISOString(),
+      end_time: new Date(baseTime.getTime() + 25200).toISOString(),
+      tool: "code",
+      input: "Write completion log",
+      output: "Task completed successfully",
+    },
+    {
+      id: "step_1c9e8f2d",
+      step: "Archive results",
+      start_time: new Date(baseTime.getTime() + 25200).toISOString(),
+      end_time: new Date(baseTime.getTime() + 26800).toISOString(),
+      tool: { name: "storage" },
+      input: "Store results in S3: s3://bucket/results/20240115",
+      output: "Archived 1.2 MB",
+    },
+    {
+      id: "step_6f4e9c3a",
+      step: "Update metrics",
+      start_time: new Date(baseTime.getTime() + 26800).toISOString(),
+      end_time: new Date(baseTime.getTime() + 27500).toISOString(),
+      tool: "code",
+      input: "Update system metrics dashboard",
+      output: "Metrics updated",
+    },
+    {
+      id: "step_9d2c7f8e",
+      step: "Cleanup resources",
+      start_time: new Date(baseTime.getTime() + 27500).toISOString(),
+      end_time: new Date(baseTime.getTime() + 28200).toISOString(),
+      tool: { name: "code" },
+      input: "Close database connections and free memory",
+      output: "Resources cleaned up",
+    },
+    {
+      id: "step_4a8e3c1f",
+      step: "Verify data integrity",
+      start_time: new Date(baseTime.getTime() + 28200).toISOString(),
+      end_time: new Date(baseTime.getTime() + 29100).toISOString(),
+      tool: "code",
+      input: "Run data integrity checks",
+      output: "All checks passed",
+      error: {
+        message: "Checksum mismatch for 2 records",
+        type: "IntegrityError",
+      },
+    },
+    {
+      id: "step_7c9d2e4b",
+      step: "Fix corrupted records",
+      start_time: new Date(baseTime.getTime() + 29100).toISOString(),
+      end_time: new Date(baseTime.getTime() + 30500).toISOString(),
+      tool: { name: "code" },
+      input: "Recompute checksums for corrupted records",
+      output: "2 records fixed",
+    },
+    {
+      id: "step_2e8f4c9a",
+      step: "Final verification",
+      start_time: new Date(baseTime.getTime() + 30500).toISOString(),
+      end_time: new Date(baseTime.getTime() + 31200).toISOString(),
+      tool: "code",
+      input: "Run final verification",
+      output: "All systems nominal",
+    },
+  ];
+
+  // Return steps in their original order (NOT sorted by start_time)
+  // This is intentional - candidates should sort by start_time in the UI
+  return NextResponse.json({ steps });
+}
