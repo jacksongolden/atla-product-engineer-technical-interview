@@ -1,12 +1,5 @@
 /**
  * Filter controls for the trace viewer
- *
- * TIER 2 TASK:
- * Candidates should implement:
- * 1. "Errors only" toggle that filters steps with errors
- * 2. Search input that matches on tool, input, or error.message
- * 3. Synchronize filter state with URL query params (not local state)
- * 4. Display count of errors
  */
 
 interface FiltersProps {

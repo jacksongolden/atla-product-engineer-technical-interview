@@ -8,18 +8,12 @@ interface TraceListProps {
 
 /**
  * Displays a list of trace steps
- *
- * INTENTIONAL BUG (Tier 1):
- * Steps are sorted by `id` (random) instead of by `start_time` (chronological).
- * Candidates should fix this to sort by start_time.
  */
 export function TraceList({
   steps,
   selectedStepId,
   onSelectStep,
 }: TraceListProps) {
-  // BUG: Sorting by id instead of start_time!
-  // This will make steps appear in random order
   const sortedSteps = [...steps].sort((a, b) => a.id.localeCompare(b.id));
 
   const formatTime = (date: Date) => {

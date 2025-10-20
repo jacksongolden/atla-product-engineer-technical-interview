@@ -10,14 +10,6 @@ import { useMemo } from "react";
 
 /**
  * Main Trace Viewer page
- *
- * Coordinates:
- * - Fetching trace data
- * - Reading/writing URL query params for filters and selection
- * - Rendering components
- *
- * TIER 2 TASK: Implement actual filtering logic (currently just shows all steps)
- * TIER 3 TASK: Implement proper URL-based step selection and panel management
  */
 export default function TraceViewerPage() {
   const params = useParams();
@@ -35,14 +27,10 @@ export default function TraceViewerPage() {
   const { data, isLoading, error } = useTraceQuery(runId);
 
   // Filter steps based on current filters
-  // TIER 2: Candidates should implement actual filtering logic here
   const filteredSteps = useMemo(() => {
     if (!data?.steps) return [];
 
     const filtered = data.steps;
-
-    // TODO: Implement errorsOnly filter
-    // TODO: Implement searchQuery filter
 
     return filtered;
   }, [data?.steps]);

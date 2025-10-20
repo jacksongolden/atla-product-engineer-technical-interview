@@ -2,15 +2,9 @@ import { NextResponse } from "next/server";
 
 /**
  * Mock API endpoint that returns trace data
- *
- * INTENTIONAL ISSUES (for candidates to discover):
- * 1. Steps have random UUIDs (not sequential) and are NOT sorted by start_time
- * 2. `tool` field is sometimes a string, sometimes an object
- * 3. Timestamps are ISO strings (not Date objects)
  */
 
 export async function GET() {
-  // Generate realistic trace data with ~20-30 steps
   const baseTime = new Date("2024-01-15T10:00:00Z");
 
   const steps = [
@@ -271,7 +265,5 @@ export async function GET() {
     },
   ];
 
-  // Return steps in their original order (NOT sorted by start_time)
-  // This is intentional - candidates should sort by start_time in the UI
   return NextResponse.json({ steps });
 }

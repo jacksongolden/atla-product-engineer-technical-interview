@@ -1,15 +1,7 @@
 import { type Step } from "@/types/trace";
 
 /**
- * Slide-out panel to display step details
- *
- * TIER 3 TASK:
- * Candidates should:
- * 1. Make this a proper slide-out panel (animated, anchored to right)
- * 2. Open when stepId is present in URL
- * 3. Close when stepId is removed from URL
- * 4. Preserve list scroll position when opening/closing
- * 5. Add smooth transitions
+ * Panel to display step details
  */
 
 interface StepInspectorPanelProps {
